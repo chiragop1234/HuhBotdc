@@ -60,11 +60,7 @@ async def claim_command(ctx):
     # Avoid responding to the bot's own messages
     if ctx.author != bot.user:
         # Send a message in the channel indicating the DM
-        message = await ctx.send("Check your DMs for the credit card details!")
-
-        # Add reactions to the message
-        for emoji in ['👍', '👎']:
-            await message.add_reaction(emoji)
+        await ctx.send("Check your DMs for the credit card details!")
 
 
 @bot.command(name='balance')
@@ -86,17 +82,6 @@ def generate_random_cc():
     amount = f"${random.uniform(1, 1000):,.2f}"
 
     return f"{cc_number} | {exp_date} | {cvv} | {currency} | {amount}"
-
-
-@bot.event
-async def on_reaction_add(reaction, user):
-    if user.bot:
-        return  # Ignore reactions from bots
-
-    if reaction.message.content.startswith("Check your DMs for the credit card details!") and str(reaction.emoji) == '👍':
-        await user.send("You liked the credit card! 🌟")
-    elif reaction.message.content.startswith("Check your DMs for the credit card details!") and str(reaction.emoji) == '👎':
-        await user.send("You disliked the credit card! 😞")
 
 
 bot.run(TOKEN)
