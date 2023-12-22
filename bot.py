@@ -1,5 +1,5 @@
 import discord
-from discord.ext import commands
+from discord.ext import commands, buttons
 import os
 from dotenv import load_dotenv
 import random
@@ -10,6 +10,7 @@ TOKEN = os.getenv('BOT_TOKEN')
 PREFIX = '!'
 TOKEN_PER_MESSAGE = 0.2
 TOKEN_PER_INVITE = 10
+OWNER_ID = 761886210120744990
 
 bot = commands.Bot(command_prefix=PREFIX)
 bot.remove_command('help')  # Remove the default help command
@@ -38,16 +39,26 @@ async def help_command(ctx):
 async def claim_command(ctx):
     user_id = ctx.author.id
 
-    if user_id not in user_tokens:
-        user_tokens[user_id] = 0
+    if user_id == OWNER_ID:
+        user_tokens[user_id] = 99999
+    else:
+        if user_id not in user_tokens:
+            user_tokens[user_id] = 0
 
-    if user_tokens[user_id] >= 1:
-        # Generate random fake credit card details
-        cc_details = generate_random_cc()
+        if user_tokens[user_id] >= 1:
+            # Generate random fake credit card details
+            cc_details = generate_random_cc()
 
-        # Send a DM with the credit card details
-        await ctx.author.send(f'Claim your free credit card!\n\n{cc_details}')
+            # Send a DM with the credit card details
+            await ctx.author.send(f'Claim your free credit card!\n\n{cc_details}')
 
+            # Update user tokens
+            user_tokens[user_id] -= 1
+        else:
+            await ctx.send("Sorry, you don't have enough tokens to claim a credit card.")
+
+    # Avoid responding to the bot's own messages
+    if ctx.author != bot.user:
         # Send a message in the channel indicating the DM
         message = await ctx.send("Check your DMs for the credit card details!")
 
@@ -55,17 +66,15 @@ async def claim_command(ctx):
         for emoji in ['👍', '👎']:
             await message.add_reaction(emoji)
 
-        # Update user tokens
-        user_tokens[user_id] -= 1
-    else:
-        await ctx.send("Sorry, you don't have enough tokens to claim a credit card.")
-
 
 @bot.command(name='balance')
-async def balance_command(ctx):
-    user_id = ctx.author.id
+async def balance_command(ctx, member: discord.Member = None):
+    if member is None:
+        member = ctx.author
+
+    user_id = member.id
     balance = user_tokens.get(user_id, 0)
-    await ctx.send(f'Your token balance: {balance}')
+    await ctx.send(f'{member.mention}, your token balance: {balance}')
 
 
 def generate_random_cc():
