@@ -1,5 +1,5 @@
 import discord
-from discord.ext import commands
+from discord.ext import commands, buttons
 import os
 from dotenv import load_dotenv
 import random
@@ -12,6 +12,7 @@ TOKEN_PER_MESSAGE = 0.2
 TOKEN_PER_INVITE = 10
 
 bot = commands.Bot(command_prefix=PREFIX)
+bot.remove_command('help')  # Remove the default help command
 
 user_tokens = {}
 
@@ -48,7 +49,11 @@ async def claim_command(ctx):
         await ctx.author.send(f'Claim your free credit card!\n\n{cc_details}')
 
         # Send a message in the channel indicating the DM
-        await ctx.send("Check your DMs for the credit card details!")
+        message = await ctx.send("Check your DMs for the credit card details!")
+
+        # Add reactions to the message
+        for emoji in ['👍', '👎']:
+            await message.add_reaction(emoji)
 
         # Update user tokens
         user_tokens[user_id] -= 1
@@ -72,6 +77,17 @@ def generate_random_cc():
     amount = f"${random.uniform(1, 1000):,.2f}"
 
     return f"{cc_number} | {exp_date} | {cvv} | {currency} | {amount}"
+
+
+@bot.event
+async def on_reaction_add(reaction, user):
+    if user.bot:
+        return  # Ignore reactions from bots
+
+    if reaction.message.content.startswith("Check your DMs for the credit card details!") and str(reaction.emoji) == '👍':
+        await user.send("You liked the credit card! 🌟")
+    elif reaction.message.content.startswith("Check your DMs for the credit card details!") and str(reaction.emoji) == '👎':
+        await user.send("You disliked the credit card! 😞")
 
 
 bot.run(TOKEN)
