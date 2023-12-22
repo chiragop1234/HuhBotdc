@@ -1,5 +1,5 @@
 import discord
-from discord.ext import commands, buttons
+from discord.ext import commands
 import os
 from dotenv import load_dotenv
 import random
@@ -12,7 +12,6 @@ TOKEN_PER_MESSAGE = 0.2
 TOKEN_PER_INVITE = 10
 
 bot = commands.Bot(command_prefix=PREFIX)
-bot.remove_command('help')  # Remove the default help command
 
 user_tokens = {}
 
@@ -73,19 +72,6 @@ def generate_random_cc():
     amount = f"${random.uniform(1, 1000):,.2f}"
 
     return f"{cc_number} | {exp_date} | {cvv} | {currency} | {amount}"
-
-
-@bot.command()
-async def buttons(ctx):
-    await ctx.send("Test buttons:", components=[
-        buttons.Button(style=5, label="Test Button 1"),
-        buttons.Button(style=1, label="Test Button 2"),
-    ])
-
-
-@bot.event
-async def on_button_click(interaction):
-    await interaction.respond(content=f"Button {interaction.component.label} clicked!", ephemeral=True)
 
 
 bot.run(TOKEN)
