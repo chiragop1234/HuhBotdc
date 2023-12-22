@@ -1,6 +1,5 @@
 import discord
-from discord.ext import commands
-from discord_buttons import Button
+from discord.ext import commands, buttons
 import os
 from dotenv import load_dotenv
 import random
@@ -13,6 +12,7 @@ TOKEN_PER_MESSAGE = 0.2
 TOKEN_PER_INVITE = 10
 
 bot = commands.Bot(command_prefix=PREFIX)
+bot.remove_command('help')  # Remove the default help command
 
 user_tokens = {}
 
@@ -78,8 +78,8 @@ def generate_random_cc():
 @bot.command()
 async def buttons(ctx):
     await ctx.send("Test buttons:", components=[
-        Button(style=5, label="Test Button 1"),
-        Button(style=1, label="Test Button 2"),
+        buttons.Button(style=5, label="Test Button 1"),
+        buttons.Button(style=1, label="Test Button 2"),
     ])
 
 
