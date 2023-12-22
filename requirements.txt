@@ -1,4 +1,4 @@
 discord.py==1.7.3
 discord-py-interactions==3.0.2
 python-dotenv==0.19.1
-discord-py-buttons==4.0.0
+discord-py-buttons==1.0.1
