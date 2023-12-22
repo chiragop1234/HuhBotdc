@@ -8,8 +8,6 @@ load_dotenv()
 
 TOKEN = os.getenv('BOT_TOKEN')
 PREFIX = '!'
-TOKEN_PER_MESSAGE = 0.2
-TOKEN_PER_INVITE = 10
 OWNER_ID = 761886210120744990
 
 bot = commands.Bot(command_prefix=PREFIX)
@@ -57,19 +55,14 @@ async def claim_command(ctx):
         else:
             await ctx.send("Sorry, you don't have enough tokens to claim a credit card.")
 
-    # Avoid responding to the bot's own messages
-    if ctx.author != bot.user:
-        # Send a message in the channel indicating the DM
-        await ctx.send("Check your DMs for the credit card details!")
+    # Send a message in the channel indicating the DM
+    await ctx.send("Check your DMs for the credit card details!")
 
 
 @bot.command(name='balance')
 async def balance_command(ctx, member: discord.Member = None):
-    if member is None:
-        member = ctx.author
-
-    user_id = member.id
-    balance = user_tokens.get(user_id, 0)
+    member = member or ctx.author
+    balance = user_tokens.get(member.id, 0)
     await ctx.send(f'{member.mention}, your token balance: {balance}')
 
 
