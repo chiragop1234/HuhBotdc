@@ -78,26 +78,33 @@ async def claim(ctx):
         save_balances()
 
         # Implement CC claiming logic here
-        with open('cc.txt', 'r') as cc_file:
-            cc_content = cc_file.read()
+        cc_file_path = 'cc.txt'
+        with open(cc_file_path, 'r') as cc_file:
+            # Read all lines from cc.txt
+            cc_lines = cc_file.readlines()
 
-        # Split the content into chunks of 1900 characters
-        chunk_size = 1900
-        content_chunks = [cc_content[i:i+chunk_size] for i in range(0, len(cc_content), chunk_size)]
+        if cc_lines:
+            # Take the first line from cc.txt
+            cc_content = cc_lines[0].strip()
 
-        # Send each chunk in DM
-        try:
-            for chunk in content_chunks:
-                await ctx.author.send(f"CLAIM YOUR FREE CC COST 1 TOKEN\n{chunk}")
-        except discord.Forbidden:
-            await ctx.send("Failed to send CC in DM. Please make sure your DMs are open.")
+            # Remove the claimed line from cc.txt
+            with open(cc_file_path, 'w') as cc_file:
+                cc_file.writelines(cc_lines[1:])
+
+            # Send CC in DM
+            try:
+                await ctx.author.send(f"CLAIM YOUR FREE CC COST 1 TOKEN\n{cc_content}")
+            except discord.Forbidden:
+                await ctx.send("Failed to send CC in DM. Please make sure your DMs are open.")
+            else:
+                # Create an interactive message with a Claim button
+                claim_button = discord.ui.Button(style=discord.ButtonStyle.green, label="Claim CC", custom_id="claim_cc")
+                view = discord.ui.View()
+                view.add_item(claim_button)
+
+                await ctx.send("CC sent in DM! Check your direct messages.", view=view)
         else:
-            # Create an interactive message with a Claim button
-            claim_button = discord.ui.Button(style=discord.ButtonStyle.green, label="Claim CC", custom_id="claim_cc")
-            view = discord.ui.View()
-            view.add_item(claim_button)
-
-            await ctx.send("CC sent in DM! Check your direct messages.", view=view)
+            await ctx.send("No more CCs available. Earn more by chatting!")
     else:
         await ctx.send("Insufficient tokens. Earn more by chatting!")
 
