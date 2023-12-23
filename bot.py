@@ -23,11 +23,17 @@ def save_balances():
             file.write(f'{user_id}:{tokens}\n')
 
 # Load user balances from a file (if the file exists)
-if os.path.exists('balances.txt'):
-    with open('balances.txt', 'r') as file:
+balances_file_path = 'balances.txt'
+if os.path.exists(balances_file_path):
+    with open(balances_file_path, 'r') as file:
         for line in file:
-            user_id, tokens = line.strip().split(':')
-            user_balances[int(user_id)] = float(tokens)
+            if line.strip():  # Check if the line is not empty
+                parts = line.strip().split(':')
+                if len(parts) == 2:
+                    user_id, tokens = parts
+                    user_balances[int(user_id)] = float(tokens)
+                else:
+                    print(f"Ignoring invalid line in {balances_file_path}: {line.strip()}")
 
 @bot.event
 async def on_ready():
