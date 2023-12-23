@@ -2,15 +2,18 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 import os
+from flask import Flask
+from threading import Thread
 
 load_dotenv()
 
 TOKEN = os.getenv('DISCORD_TOKEN')
 CHANNEL_ID = int(os.getenv('CHANNEL_ID'))
+WEB_PORT = 3210  # Choose your desired port for the web server
 
 intents = discord.Intents.default()
 intents.messages = True
-intents.message_content = True  # Add this line to enable message content intent
+intents.message_content = True
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
@@ -35,6 +38,20 @@ if os.path.exists(balances_file_path):
                     user_balances[int(user_id)] = float(tokens)
                 else:
                     print(f"Ignoring invalid line in {balances_file_path}: {line.strip()}")
+
+app = Flask(__name__)
+
+# Define a route for the web server
+@app.route('/')
+def index():
+    return 'Hello, this is your web server!'
+
+# Run the web server in a separate thread
+def run_web_server():
+    app.run(host='0.0.0.0', port=WEB_PORT)
+
+web_server_thread = Thread(target=run_web_server)
+web_server_thread.start()
 
 @bot.event
 async def on_ready():
@@ -108,5 +125,11 @@ async def claim(ctx):
             await ctx.send("No more CCs available. Earn more by chatting!")
     else:
         await ctx.send("Insufficient tokens. Earn more by chatting!")
+
+# Make sure to include the web server thread cleanup on bot shutdown
+@bot.event
+async def on_shutdown():
+    print("Bot is shutting down.")
+    web_server_thread.join()
 
 bot.run(TOKEN)
