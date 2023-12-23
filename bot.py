@@ -55,20 +55,24 @@ async def balance(ctx):
     current_balance = user_balances.get(user_id, 0)
     await ctx.send(f'Your current balance is {current_balance:.1f} tokens.')
 
-@bot.command()
-async def help(ctx):
+@bot.command(name="helpme")
+async def help_me(ctx):
     help_message = (
         "Welcome to the CC Bot!\n\n"
         "**Commands:**\n"
         "`!balance`: Check your token balance.\n"
         "`!claim`: Claim a CC for 1 token.\n"
-        "`!help`: Display this help message."
+        "`!helpme`: Display this help message."
     )
     await ctx.send(help_message)
 
 @bot.command()
 async def claim(ctx):
     user_id = ctx.author.id
+    if user_id not in user_balances:
+        # Create data for a user if it doesn't exist
+        user_balances[user_id] = 0
+
     if user_balances.get(user_id, 0) >= 1:
         user_balances[user_id] -= 1
         save_balances()
