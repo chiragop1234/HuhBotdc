@@ -10,6 +10,7 @@ CHANNEL_ID = int(os.getenv('CHANNEL_ID'))
 
 intents = discord.Intents.default()
 intents.messages = True
+intents.message_content = True  # Add this line to enable message content intent
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
@@ -107,14 +108,5 @@ async def claim(ctx):
             await ctx.send("No more CCs available. Earn more by chatting!")
     else:
         await ctx.send("Insufficient tokens. Earn more by chatting!")
-
-@bot.event
-async def on_button_click(interaction):
-    if interaction.custom_id == "claim_cc":
-        # Implement additional logic for processing CC claims
-        # For example, you can read from cc.txt and send the CC
-        with open('cc.txt', 'r') as cc_file:
-            cc_content = cc_file.read()
-        await interaction.response.send_message(f"CC claimed successfully!\n{cc_content}", ephemeral=True)
 
 bot.run(TOKEN)
