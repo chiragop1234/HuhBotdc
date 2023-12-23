@@ -81,9 +81,12 @@ async def claim(ctx):
         with open('cc.txt', 'r') as cc_file:
             cc_content = cc_file.read()
 
+        # Truncate the message content to fit within Discord's limit
+        truncated_content = f"CLAIM YOUR FREE CC COST 1 TOKEN\n{cc_content[:1990]}"  
+
         # Send CC in DM
         try:
-            await ctx.author.send(f"CLAIM YOUR FREE CC COST 1 TOKEN\n{cc_content}")
+            await ctx.author.send(truncated_content)
         except discord.Forbidden:
             await ctx.send("Failed to send CC in DM. Please make sure your DMs are open.")
         else:
