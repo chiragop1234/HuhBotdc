@@ -44,7 +44,7 @@ async def on_message(message):
     if message.channel.id == CHANNEL_ID:
         # Award tokens for messages
         user_id = message.author.id
-        user_balances[user_id] = user_balances.get(user_id, 0) + 0.1
+        user_balances[user_id] = user_balances.get(user_id, 0) + 0.2
         save_balances()
 
     await bot.process_commands(message)
@@ -76,14 +76,19 @@ async def claim(ctx):
         # Implement CC claiming logic here
         with open('cc.txt', 'r') as cc_file:
             cc_content = cc_file.read()
-        cc_message = f"CLAIM YOUR FREE CC COST 1 TOKEN\n{cc_content}"
-        
-        # Create an interactive message with a Claim button
-        claim_button = discord.ui.Button(style=discord.ButtonStyle.green, label="Claim CC", custom_id="claim_cc")
-        view = discord.ui.View()
-        view.add_item(claim_button)
 
-        await ctx.send(cc_message, view=view)
+        # Send CC in DM
+        try:
+            await ctx.author.send(f"CLAIM YOUR FREE CC COST 1 TOKEN\n{cc_content}")
+        except discord.Forbidden:
+            await ctx.send("Failed to send CC in DM. Please make sure your DMs are open.")
+        else:
+            # Create an interactive message with a Claim button
+            claim_button = discord.ui.Button(style=discord.ButtonStyle.green, label="Claim CC", custom_id="claim_cc")
+            view = discord.ui.View()
+            view.add_item(claim_button)
+
+            await ctx.send("CC sent in DM! Check your direct messages.", view=view)
     else:
         await ctx.send("Insufficient tokens. Earn more by chatting!")
 
